@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Checklist para Implantação — Escola de Formação de Vigilantes</title>
+<style>
+  :root{
+    --red:#e53935;
+    --red-mid:#c62828;
+    --red-dark:#8e0000;
+    --black:#0b0b0b;
+    --panel:#151515;
+    --panel-2:#1c1c1c;
+    --text:#f5f5f5;
+    --muted:#c8c8c8;
+    --border:#3a0d0d;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    font-family:"Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background:radial-gradient(circle at 50% -10%, #300a0a 0%, #0b0b0b 55%);
+    color:var(--text);
+    overflow:hidden;
+    -webkit-text-size-adjust:100%;
+  }
+
+  .progress{ position:fixed; top:0; left:0; width:100%; height:4px; background:#200707; z-index:60; }
+  .progress-bar{ height:100%; width:0; background:linear-gradient(90deg,#e53935,#ff6b6b); transition:width .3s ease; }
+
+  .deck{ height:100vh; height:100dvh; }
+  .slide{ position:absolute; inset:0; display:none; flex-direction:column; overflow:hidden; }
+  .slide.active{ display:flex; animation:fadeIn .45s ease; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;} }
+
+  .watermark{ position:absolute; inset:0; background:url('https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png') center/contain no-repeat; opacity:.05; pointer-events:none; z-index:0; }
+
+  .slide-header{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px 24px; background:linear-gradient(90deg, var(--red-dark) 0%, #450b0b 50%, #0b0b0b 100%); border-bottom:3px solid var(--red); flex-shrink:0; z-index:2; }
+  .slide-header .h-title{ font-size:1.25rem; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.6); }
+  .slide-header .h-title span{ color:var(--red); }
+  .slide-header img{ height:46px; width:auto; filter:drop-shadow(0 0 8px rgba(229,57,53,.55)); }
+
+  .slide-body{ flex:1; overflow-y:auto; padding:24px 28px 120px; z-index:1; position:relative; }
+  .slide-body::-webkit-scrollbar{ width:9px; }
+  .slide-body::-webkit-scrollbar-track{ background:#141414; }
+  .slide-body::-webkit-scrollbar-thumb{ background:var(--red-dark); border-radius:5px; }
+
+  h2.sec{ font-size:1.6rem; font-weight:800; color:#fff; margin-bottom:6px; letter-spacing:.3px; }
+  h2.sec .num{ color:var(--red); }
+  .sec-line{ height:3px; width:70px; background:var(--red); margin:8px 0 18px; border-radius:2px; }
+
+  ul.checklist{ list-style:none; display:grid; gap:9px; }
+  ul.checklist li{ background:linear-gradient(90deg, var(--panel-2) 0%, var(--panel) 100%); border:1px solid var(--border); border-left:4px solid var(--red-mid); padding:10px 14px; border-radius:6px; line-height:1.45; font-size:.98rem; color:var(--text); }
+  ul.checklist li .ck{ color:var(--red); font-weight:700; margin-right:8px; }
+
+  .note{ margin-top:18px; background:linear-gradient(90deg, rgba(142,0,0,.35), rgba(92,10,10,.25)); border:1px solid #6b1313; border-left:5px solid var(--red); border-radius:6px; padding:13px 16px; font-size:.94rem; color:#ffd9d9; line-height:1.5; }
+  .note strong{ color:#fff; display:block; margin-bottom:4px; letter-spacing:.4px; }
+
+  .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .col-card{ background:rgba(21,21,21,.85); border:1px solid var(--border); border-top:3px solid var(--red-mid); border-radius:8px; padding:16px; }
+  .col-card h3{ font-size:1.05rem; color:var(--red); margin-bottom:12px; text-transform:uppercase; letter-spacing:.5px; }
+
+  .pre-wrap{ background:#0d0d0d; border:1px solid #3a0d0d; border-radius:8px; padding:16px; overflow-x:auto; }
+  .pre-wrap pre{ font-family:"Consolas","Courier New",monospace; font-size:.72rem; line-height:1.25; color:#ffb3b3; white-space:pre; }
+
+  table.tax{ width:100%; border-collapse:collapse; margin:14px 0 18px; }
+  table.tax th, table.tax td{ border:1px solid #4a1010; padding:11px 14px; text-align:left; }
+  table.tax th{ background:var(--red-dark); color:#fff; text-transform:uppercase; font-size:.85rem; letter-spacing:.5px; }
+  table.tax td{ background:#161616; }
+  table.tax tr.total td{ background:#2a0707; color:#fff; font-weight:700; }
+  table.tax td.val{ color:var(--red); font-weight:700; white-space:nowrap; }
+
+  .flow{ display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin:18px 0; }
+  .flow .step{ background:linear-gradient(180deg, #1d1d1d, #121212); border:1px solid #4a1010; border-top:3px solid var(--red); padding:12px 16px; border-radius:6px; font-weight:700; text-align:center; font-size:.92rem; }
+  .flow .arrow{ color:var(--red); font-size:1.4rem; font-weight:900; }
+
+  .cover{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px 40px 120px; z-index:1; position:relative; overflow-y:auto; }
+  .cover-logo{ height:150px; width:auto; margin-bottom:22px; filter:drop-shadow(0 0 20px rgba(229,57,53,.6)); }
+  .cover h1{ font-size:2.4rem; font-weight:900; letter-spacing:1px; color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.7); }
+  .cover h2{ font-size:1.25rem; color:var(--red); margin-top:8px; font-weight:700; }
+  .cover .subtitle{ margin-top:8px; color:var(--muted); font-size:1rem; }
+  .cover .note{ max-width:760px; text-align:left; margin-top:28px; }
+
+  .final{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; z-index:1; position:relative; padding:30px 30px 120px; }
+  .final .big{ font-size:1.8rem; font-weight:900; color:#fff; max-width:800px; line-height:1.35; }
+  .final .big span{ color:var(--red); }
+  .final .sub{ margin-top:14px; color:var(--muted); font-size:1rem; }
+
+  .terreno-images{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+  .terreno-img-box{ background:#0d0d0d; border:2px solid #4a1010; border-radius:8px; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; padding:8px; min-height:120px; }
+  .terreno-img-box img{ max-width:100%; max-height:340px; width:auto; height:auto; object-fit:contain; display:block; }
+  .terreno-img-box .img-label{ position:absolute; top:10px; left:10px; z-index:2; background:rgba(142,0,0,.9); color:#fff; padding:6px 12px; border-radius:4px; font-size:.85rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
+  .terreno-img-box.placeholder{ display:flex; align-items:center; justify-content:center; min-height:200px; color:#7a7a7a; font-style:italic; font-size:.9rem; }
+  .terreno-info{ background:rgba(21,21,21,.85); border:1px solid var(--border); border-top:3px solid var(--red-mid); border-radius:8px; padding:20px; }
+  .terreno-info h3{ font-size:1.1rem; color:var(--red); margin-bottom:14px; text-transform:uppercase; letter-spacing:.5px; }
+  .terreno-info .info-row{ display:flex; gap:12px; margin-bottom:10px; font-size:.95rem; line-height:1.5; }
+  .terreno-info .info-row strong{ color:var(--red); min-width:140px; font-weight:700; }
+  .terreno-info a{ color:var(--red); text-decoration:none; font-weight:600; }
+  .terreno-info a:hover{ text-decoration:underline; }
+
+  .controls{ position:fixed; bottom:0; left:0; right:0; z-index:70; display:flex; align-items:center; justify-content:space-between; padding:11px 20px; padding-bottom:calc(11px + env(safe-area-inset-bottom)); background:rgba(11,11,11,.95); border-top:2px solid #4a1010; }
+  .controls button{ background:var(--red-dark); color:#fff; border:none; padding:12px 22px; border-radius:8px; font-size:.95rem; font-weight:700; cursor:pointer; letter-spacing:.4px; min-height:44px; touch-action:manipulation; -webkit-tap-highlight-color:transparent; user-select:none; transition:background .2s, transform .1s; }
+  .controls button:hover{ background:var(--red-mid); }
+  .controls button:active{ background:var(--red-mid); transform:scale(.97); }
+  .counter{ font-size:.9rem; color:var(--muted); letter-spacing:1px; }
+  .counter b{ color:var(--red); font-size:1.05rem; }
+  .hint{ font-size:.75rem; color:#7a7a7a; }
+
+  @media (max-width:760px){
+    .two-col{ grid-template-columns:1fr; }
+    .terreno-images{ grid-template-columns:1fr; }
+    .cover h1{ font-size:1.7rem; }
+    .slide-header .h-title{ font-size:1rem; }
+    .slide-header img{ height:36px; }
+    .terreno-img-box img{ max-height:260px; }
+    .slide-body{ padding:16px 16px 130px; }
+    .controls{ padding:9px 12px; padding-bottom:calc(9px + env(safe-area-inset-bottom)); }
+    .hint{ display:none; }
+    .counter{ font-size:.85rem; }
+  }
+</style>
+</head>
+<body>
+<div class="progress"><div class="progress-bar" id="progress"></div></div>
+
+<div class="deck" id="deck">
+
+  <section class="slide active">
+    <div class="watermark"></div>
+    <div class="cover">
+      <img class="cover-logo" src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+      <h1>CHECKLIST PARA IMPLANTAÇÃO</h1>
+      <h2>Escola de Formação de Vigilantes — Rio de Janeiro/RJ</h2>
+      <p class="subtitle">Documento de planejamento e conferência de requisitos</p>
+      <div class="note">
+        <strong>Observação importante</strong>
+        <p>Este checklist foi estruturado com base nas informações fornecidas para o projeto. Antes da constituição da empresa, da assinatura do contrato de locação ou da realização de investimentos, recomenda-se confirmar os requisitos vigentes diretamente com a Polícia Federal, a Junta Comercial, a Prefeitura, o CBMERJ e os demais órgãos competentes.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <header class="slide-header">
+      <div class="h-title"><span>1.</span> Constituição da empresa</div>
+      <img src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+    </header>
+    <div class="slide-body">
+      <ul class="checklist">
+        <li><span class="ck">☐</span>Constituir pessoa jurídica.</li>
+        <li><span class="ck">☐</span>Obter permissão prévia da Polícia Federal para registro na Junta Comercial.</li>
+        <li><span class="ck">☐</span>Limitar o objeto social às atividades de formação, aperfeiçoamento e atualização de profissionais de segurança privada.</li>
+        <li><span class="ck">☐</span>Utilizar o CNAE principal 8599-6/99 — Outras atividades de ensino não especificadas anteriormente.</li>
+        <li><span class="ck">☐</span>Integralizar capital social mínimo de R$ 292.000,00.</li>
+        <li><span class="ck">☐</span>Verificar a vedação à propriedade e à administração da escola por estrangeiros.</li>
+        <li><span class="ck">☐</span>Obter o CNPJ.</li>
+        <li><span class="ck">☐</span>Providenciar as inscrições fiscais necessárias.</li>
+        <li><span class="ck">☐</span>Contratar contador.</li>
+        <li><span class="ck">☐</span>Obter certificado digital para utilização dos sistemas da Polícia Federal.</li>
+      </ul>
+      <div class="note">
+        <strong>Ato constitutivo</strong>
+        <p>O documento deverá ser submetido previamente à Polícia Federal antes do registro na Junta Comercial.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <header class="slide-header">
+      <div class="h-title"><span>2.</span> Documentação para a Polícia Federal</div>
+      <img src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+    </header>
+    <div class="slide-body">
+      <div class="two-col">
+        <div class="col-card">
+          <h3>Empresa</h3>
+          <ul class="checklist">
+            <li><span class="ck">☐</span>Ato constitutivo, contrato social e respectivas alterações.</li>
+            <li><span class="ck">☐</span>CNPJ.</li>
+            <li><span class="ck">☐</span>Inscrições nos órgãos fazendários federal, estadual e municipal.</li>
+            <li><span class="ck">☐</span>Balanço ou balancete demonstrando a integralização do capital.</li>
+            <li><span class="ck">☐</span>Documentos que comprovem a origem dos bens e recursos utilizados na integralização.</li>
+            <li><span class="ck">☐</span>Comprovante de recolhimento das taxas da Polícia Federal.</li>
+          </ul>
+        </div>
+        <div class="col-card">
+          <h3>Sócios, administradores, diretores e gerentes</h3>
+          <ul class="checklist">
+            <li><span class="ck">☐</span>Documento de identificação — RG ou equivalente.</li>
+            <li><span class="ck">☐</span>CPF.</li>
+            <li><span class="ck">☐</span>Título de eleitor.</li>
+            <li><span class="ck">☐</span>Certificado de reservista, quando aplicável.</li>
+            <li><span class="ck">☐</span>Comprovante de residência.</li>
+            <li><span class="ck">☐</span>Certidões ou provas de inexistência de condenação criminal.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <header class="slide-header">
+      <div class="h-title"><span>3.</span> Imóvel</div>
+      <img src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+    </header>
+    <div class="slide-body">
+      <div class="note" style="margin-top:0; margin-bottom:16px;">
+        <p>O imóvel deverá ser planejado para permitir a obtenção do Certificado de Segurança e o funcionamento exclusivo da escola. A escola deverá funcionar somente nas instalações aprovadas e comprovadas por Registro na Junta Comercial.</p>
+      </div>
+      <ul class="checklist">
+        <li><span class="ck">☐</span>Uso exclusivo da escola.</li>
+        <li><span class="ck">☐</span>Acesso exclusivo.</li>
+        <li><span class="ck">☐</span>Separação física de outros estabelecimentos ou atividades estranhas.</li>
+        <li><span class="ck">☐</span>Instalações compatíveis com a atividade.</li>
+        <li><span class="ck">☐</span>Segurança permanente.</li>
+        <li><span class="ck">☐</span>Sistema de CFTV, alarme e demais equipamentos adequados.</li>
+        <li><span class="ck">☐</span>Documentação regular do imóvel.</li>
+        <li><span class="ck">☐</span>Compatibilidade com o zoneamento municipal.</li>
+        <li><span class="ck">☐</span>Licenciamento municipal aplicável.</li>
+        <li><span class="ck">☐</span>Regularização junto ao Corpo de Bombeiros.</li>
+        <li><span class="ck">☐</span>Acessibilidade conforme a legislação aplicável.</li>
+        <li><span class="ck">☐</span>Certificado de Segurança.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <header class="slide-header">
+      <div class="h-title"><span>4.</span> Croqui preliminar da escola</div>
+      <img src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+    </header>
+    <div class="slide-body">
+      <p style="color:var(--muted); margin-bottom:14px; font-size:.95rem;">O croqui abaixo representa uma proposta-base para orientar a busca e a análise do imóvel.</p>
+      <div class="pre-wrap">
+        <pre>┌──────────────────────────────────────────────────────────────┐
+│                    ENTRADA PRINCIPAL                         │
+│                  RECEPÇÃO / ATENDIMENTO                      │
+├───────────────────────┬──────────────────────────────────────┤
+│                       │                                      │
+│     ADMINISTRAÇÃO     │       DIREÇÃO / SECRETARIA          │
+│                       │                                      │
+├───────────────────────┴──────────────────────────────────────┤
+│                                                              │
+│                    SALA DE AULA 01                           │
+│                  PROJETOR MULTIMÍDIA                         │
+│                                                              │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│                    SALA DE AULA 02                           │
+│                  PROJETOR MULTIMÍDIA                         │
+│                                                              │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│                    SALA DE AULA 03                           │
+│                  PROJETOR MULTIMÍDIA                         │
+│                                                              │
+├───────────────────────────────┬──────────────────────────────┤
+│                               │                              │
+│       SALA DOS INSTRUTORES    │       BANHEIROS              │
+│                               │                              │
+├───────────────────────────────┴──────────────────────────────┤
+│                                                              │
+│             ÁREA DE TREINAMENTO FÍSICO                       │
+│                 E DEFESA PESSOAL                             │
+│                                                              │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│              ÁREA DE APOIO / VESTIÁRIOS                      │
+│                                                              │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│        ÁREA RESTRITA — ARMAS E MUNIÇÕES                      │
+│             ACESSO CONTROLADO / CFTV                         │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+             ┌─────────────────────────────┐
+             │       ESTANDE DE TIRO       │
+             │                             │
+             │   PRÓPRIO OU CONVENIADO     │
+             │                             │
+             └─────────────────────────────┘</pre>
+      </div>
+      <div class="note">
+        <p>Não foi considerada uma metragem total mínima de 300 m² como exigência normativa. Os 300 a 400 m² são apenas uma recomendação de projeto.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <header class="slide-header">
+      <div class="h-title"><span>5.</span> Salas de aula</div>
+      <img src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+    </header>
+    <div class="slide-body">
+      <p style="color:var(--muted); margin-bottom:14px; font-size:.95rem;">Disponibilizar, no mínimo, três salas de aula.</p>
+      <ul class="checklist">
+        <li><span class="ck">☐</span>Instalar projetor multimídia em cada sala.</li>
+        <li><span class="ck">☐</span>Garantir estrutura adequada para as atividades.</li>
+        <li><span class="ck">☐</span>Observar o limite normal de até 60 alunos por sala.</li>
+        <li><span class="ck">☐</span>Planejar capacidade para formação mensal simultânea de 100 vigilantes.</li>
+        <li><span class="ck">☐</span>Avaliar salas com aproximadamente 45 a 50 m² cada, como recomendação de projeto.</li>
+      </ul>
+      <div class="note">
+        <p>A metragem de 45 a 50 m² por sala é uma recomendação de planejamento e não um número mínimo textual indicado neste checklist.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <header class="slide-header">
+      <div class="h-title"><span>6.</span> Área de treinamento</div>
+      <img src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+    </header>
+    <div class="slide-body">
+      <ul class="checklist">
+        <li><span class="ck">☐</span>Disponibilizar área para treinamento físico.</li>
+        <li><span class="ck">☐</span>Disponibilizar área para defesa pessoal.</li>
+        <li><span class="ck">☐</span>Garantir estrutura adequada para as atividades.</li>
+        <li><span class="ck">☐</span>Avaliar convênio com academia, centro de treinamento, escola de artes marciais ou estabelecimento equivalente.</li>
+        <li><span class="ck">☐</span>Comunicar ou documentar o convênio perante a Polícia Federal, quando aplicável.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <header class="slide-header">
+      <div class="h-title"><span>7.</span> Estande de tiro</div>
+      <img src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+    </header>
+    <div class="slide-body">
+      <div class="two-col">
+        <div class="col-card">
+          <h3>Opção 1 — Estande próprio</h3>
+          <ul class="checklist">
+            <li><span class="ck">☐</span>Observar distância mínima de 10 m entre a linha de tiro e o alvo.</li>
+            <li><span class="ck">☐</span>Disponibilizar, no mínimo, quatro boxes ou raias.</li>
+            <li><span class="ck">☐</span>Instalar proteção contra ricochete.</li>
+            <li><span class="ck">☐</span>Prever caixa de areia.</li>
+            <li><span class="ck">☐</span>Atender aos requisitos de exaustão.</li>
+            <li><span class="ck">☐</span>Prever proteção acústica quando aplicável.</li>
+            <li><span class="ck">☐</span>Obter ART e demais documentos técnicos necessários.</li>
+            <li><span class="ck">☐</span>Providenciar as aprovações correspondentes.</li>
+          </ul>
+        </div>
+        <div class="col-card">
+          <h3>Opção 2 — Convênio com estande autorizado</h3>
+          <p style="font-size:.92rem; color:var(--muted); margin-bottom:12px; line-height:1.5;">Para uma escola nova, recomenda-se avaliar inicialmente a utilização de um estande conveniado.</p>
+          <p style="font-size:.92rem; margin-bottom:6px;"><strong style="color:#fff;">Possíveis estruturas conveniadas:</strong></p>
+          <ul class="checklist">
+            <li><span class="ck">▸</span>Organização militar.</li>
+            <li><span class="ck">▸</span>Organização policial.</li>
+            <li><span class="ck">▸</span>Clube de tiro.</li>
+            <li><span class="ck">▸</span>Outra escola de formação.</li>
+            <li><span class="ck">▸</span>Estande de outra instalação da própria empresa na mesma unidade federativa.</li>
+          </ul>
+          <div class="note" style="margin-top:14px;">
+            <p>O convênio e a documentação correspondente deverão integrar o processo, conforme as exigências aplicáveis.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <header class="slide-header">
+      <div class="h-title"><span>8.</span> Armas e munições</div>
+      <img src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+    </header>
+    <div class="slide-body">
+      <ul class="checklist">
+        <li><span class="ck">☐</span>Disponibilizar local seguro para guarda.</li>
+        <li><span class="ck">☐</span>Garantir instalações adequadas e suficientes.</li>
+        <li><span class="ck">☐</span>Implantar controle de acesso.</li>
+        <li><span class="ck">☐</span>Instalar sistema de segurança e CFTV.</li>
+        <li><span class="ck">☐</span>Definir procedimentos de controle de armas e munições.</li>
+        <li><span class="ck">☐</span>Manter a documentação e os registros exigidos pela Polícia Federal.</li>
+        <li><span class="ck">☐</span>Verificar requisitos adicionais caso seja utilizada máquina de recarga.</li>
+        <li><span class="ck">☐</span>Observar exigências específicas para armazenamento de máquina, pólvora e espoletas, quando aplicável.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <header class="slide-header">
+      <div class="h-title"><span>9.</span> Segurança do estabelecimento</div>
+      <img src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+    </header>
+    <div class="slide-body">
+      <ul class="checklist">
+        <li><span class="ck">☐</span>Instalar sistema de CFTV.</li>
+        <li><span class="ck">☐</span>Garantir gravação das imagens.</li>
+        <li><span class="ck">☐</span>Implantar controle de acesso.</li>
+        <li><span class="ck">☐</span>Instalar sistema de alarme.</li>
+        <li><span class="ck">☐</span>Proteger especificamente o local de armas e munições.</li>
+        <li><span class="ck">☐</span>Garantir segurança perimetral adequada.</li>
+        <li><span class="ck">☐</span>Manter os equipamentos em funcionamento ininterrupto.</li>
+        <li><span class="ck">☐</span>Avaliar a utilização de vigilância patrimonial e/ou equipamentos elétricos, eletrônicos e de filmagem.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <header class="slide-header">
+      <div class="h-title"><span>10.</span> Funcionários e instrutores</div>
+      <img src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+    </header>
+    <div class="slide-body">
+      <div class="two-col">
+        <div class="col-card">
+          <h3>Estrutura administrativa recomendada</h3>
+          <ul class="checklist">
+            <li><span class="ck">☐</span>Um diretor ou administrador.</li>
+            <li><span class="ck">☐</span>Um coordenador ou responsável pela secretaria.</li>
+            <li><span class="ck">☐</span>Um auxiliar administrativo.</li>
+            <li><span class="ck">☐</span>Contador, que poderá ser terceirizado.</li>
+            <li><span class="ck">☐</span>Serviços gerais, próprios ou terceirizados.</li>
+          </ul>
+        </div>
+        <div class="col-card">
+          <h3>Instrutores</h3>
+          <ul class="checklist">
+            <li><span class="ck">☐</span>Contratar ou vincular instrutores credenciados pela Polícia Federal.</li>
+            <li><span class="ck">☐</span>Verificar o credenciamento conforme as disciplinas dos cursos.</li>
+            <li><span class="ck">☐</span>Observar a regulamentação específica aplicável aos instrutores.</li>
+            <li><span class="ck">☐</span>Definir se os instrutores atuarão como empregados, prestadores de serviço ou outra modalidade juridicamente adequada.</li>
+            <li><span class="ck">☐</span>Garantir que todas as aulas sejam ministradas por profissionais habilitados ou credenciados.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="note">
+        <p>Não é necessariamente obrigatório manter todos os instrutores como funcionários permanentes. O essencial é cumprir as exigências de habilitação e credenciamento aplicáveis.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <header class="slide-header">
+      <div class="h-title"><span>11.</span> Curso e material didático</div>
+      <img src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+    </header>
+    <div class="slide-body">
+      <ul class="checklist">
+        <li><span class="ck">☐</span>Adotar a grade curricular oficial da Polícia Federal.</li>
+        <li><span class="ck">☐</span>Observar a carga horária oficial.</li>
+        <li><span class="ck">☐</span>Preparar material didático.</li>
+        <li><span class="ck">☐</span>Elaborar planos de aula.</li>
+        <li><span class="ck">☐</span>Vincular instrutores credenciados às disciplinas correspondentes.</li>
+        <li><span class="ck">☐</span>Implantar controle de frequência.</li>
+        <li><span class="ck">☐</span>Definir avaliações.</li>
+        <li><span class="ck">☐</span>Manter registros acadêmicos.</li>
+        <li><span class="ck">☐</span>Emitir histórico escolar e demais documentos aplicáveis.</li>
+        <li><span class="ck">☐</span>Formalizar procedimentos de aprovação e reprovação.</li>
+        <li><span class="ck">☐</span>Observar os planos oficiais dos cursos de formação, aperfeiçoamento e atualização.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <header class="slide-header">
+      <div class="h-title"><span>12.</span> Sistema GESP e Polícia Federal</div>
+      <img src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+    </header>
+    <div class="slide-body">
+      <ul class="checklist">
+        <li><span class="ck">☐</span>Obter certificado digital.</li>
+        <li><span class="ck">☐</span>Criar ou obter acesso ao sistema GESP.</li>
+        <li><span class="ck">☐</span>Reunir a documentação exigida.</li>
+        <li><span class="ck">☐</span>Emitir e pagar as GRUs correspondentes.</li>
+        <li><span class="ck">☐</span>Protocolar o pedido eletronicamente.</li>
+        <li><span class="ck">☐</span>Apresentar a documentação exigida.</li>
+        <li><span class="ck">☐</span>Solicitar ou vincular a vistoria.</li>
+        <li><span class="ck">☐</span>Obter o Certificado de Segurança.</li>
+        <li><span class="ck">☐</span>Passar pela vistoria física.</li>
+        <li><span class="ck">☐</span>Aguardar a análise e o deferimento.</li>
+        <li><span class="ck">☐</span>Acompanhar a publicação da autorização no Diário Oficial da União.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <header class="slide-header">
+      <div class="h-title"><span>13.</span> Fotos e projeto físico</div>
+      <img src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+    </header>
+    <div class="slide-body">
+      <ul class="checklist">
+        <li><span class="ck">☐</span>Registrar fotos da fachada.</li>
+        <li><span class="ck">☐</span>Instalar a identificação e o nome da escola.</li>
+        <li><span class="ck">☐</span>Definir e aplicar a logomarca.</li>
+        <li><span class="ck">☐</span>Fotografar o local de guarda de armas e munições.</li>
+        <li><span class="ck">☐</span>Fotografar as salas de aula.</li>
+        <li><span class="ck">☐</span>Fotografar a área de treinamento.</li>
+        <li><span class="ck">☐</span>Apresentar documentação do estande próprio, se houver.</li>
+        <li><span class="ck">☐</span>Preparar projeto de arte gráfica da fachada, quando permitido.</li>
+        <li><span class="ck">☐</span>Apresentar fotografias posteriormente, quando exigido.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <header class="slide-header">
+      <div class="h-title"><span>14.</span> Taxas federais</div>
+      <img src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+    </header>
+    <div class="slide-body">
+      <table class="tax">
+        <thead>
+          <tr><th>Item</th><th>Valor informado</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Vistoria</td><td class="val">R$ 4.380,00</td></tr>
+          <tr><td>Autorização de funcionamento</td><td class="val">R$ 2.190,00</td></tr>
+          <tr class="total"><td>Total informado</td><td class="val">R$ 6.570,00</td></tr>
+        </tbody>
+      </table>
+      <ul class="checklist">
+        <li><span class="ck">☐</span>Confirmar os valores atualizados antes do pagamento.</li>
+        <li><span class="ck">☐</span>Emitir as respectivas GRUs.</li>
+        <li><span class="ck">☐</span>Guardar os comprovantes de pagamento.</li>
+        <li><span class="ck">☐</span>Confirmar a validade da autorização.</li>
+      </ul>
+      <div class="note">
+        <p>Os valores acima correspondem apenas às taxas federais informadas. Não estão incluídos aluguel, obras, licenças, projetos, equipamentos, contador, instrutores, estande e demais custos operacionais.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <header class="slide-header">
+      <div class="h-title"><span>15.</span> Licenciamentos fora da Polícia Federal</div>
+      <img src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+    </header>
+    <div class="slide-body">
+      <ul class="checklist">
+        <li><span class="ck">☐</span>Realizar consulta prévia de zoneamento na Prefeitura.</li>
+        <li><span class="ck">☐</span>Obter alvará ou licenciamento municipal aplicável.</li>
+        <li><span class="ck">☐</span>Regularizar o imóvel junto ao CBMERJ.</li>
+        <li><span class="ck">☐</span>Providenciar projeto de segurança contra incêndio.</li>
+        <li><span class="ck">☐</span>Verificar requisitos de acessibilidade.</li>
+        <li><span class="ck">☐</span>Verificar a regularidade das instalações elétricas.</li>
+        <li><span class="ck">☐</span>Avaliar eventuais licenças sanitárias, conforme a estrutura.</li>
+        <li><span class="ck">☐</span>Regularizar a documentação do imóvel.</li>
+        <li><span class="ck">☐</span>Regularizar a documentação do estande.</li>
+        <li><span class="ck">☐</span>Providenciar a documentação relativa às armas e munições.</li>
+        <li><span class="ck">☐</span>Verificar eventual documentação do Exército relacionada ao estande ou clube conveniado.</li>
+      </ul>
+      <div class="note">
+        <p>A autorização da Polícia Federal não substitui os demais licenciamentos municipais, estaduais ou federais aplicáveis.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <header class="slide-header">
+      <div class="h-title"><span>16.</span> Operação após a autorização</div>
+      <img src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+    </header>
+    <div class="slide-body">
+      <ul class="checklist">
+        <li><span class="ck">☐</span>Matricular somente alunos que preencham os requisitos legais.</li>
+        <li><span class="ck">☐</span>Informar à Polícia Federal os alunos matriculados dentro dos prazos aplicáveis.</li>
+        <li><span class="ck">☐</span>Informar à Polícia Federal os alunos aprovados.</li>
+        <li><span class="ck">☐</span>Manter a documentação dos alunos arquivada.</li>
+        <li><span class="ck">☐</span>Controlar a frequência.</li>
+        <li><span class="ck">☐</span>Controlar as avaliações.</li>
+        <li><span class="ck">☐</span>Emitir documentação e históricos escolares.</li>
+        <li><span class="ck">☐</span>Controlar armas e munições.</li>
+        <li><span class="ck">☐</span>Utilizar somente armamento e munição autorizados e pertencentes à escola, nas hipóteses aplicáveis.</li>
+        <li><span class="ck">☐</span>Respeitar o limite de alunos por sala.</li>
+        <li><span class="ck">☐</span>Manter o Certificado de Segurança válido.</li>
+        <li><span class="ck">☐</span>Observar os prazos de comunicação estabelecidos pela regulamentação aplicável.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <header class="slide-header">
+      <div class="h-title">Resumo executivo</div>
+      <img src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+    </header>
+    <div class="slide-body">
+      <div class="two-col">
+        <div class="col-card">
+          <h3>Empresa</h3>
+          <ul class="checklist">
+            <li><span class="ck">☐</span>Sócios.</li>
+            <li><span class="ck">☐</span>Contador.</li>
+            <li><span class="ck">☐</span>Contrato social.</li>
+            <li><span class="ck">☐</span>Permissão prévia da Polícia Federal.</li>
+            <li><span class="ck">☐</span>Registro na Junta Comercial.</li>
+            <li><span class="ck">☐</span>CNPJ.</li>
+            <li><span class="ck">☐</span>CNAE 8599-6/99.</li>
+            <li><span class="ck">☐</span>Capital integralizado de R$ 292.000,00.</li>
+            <li><span class="ck">☐</span>Inscrições fiscais.</li>
+          </ul>
+        </div>
+        <div class="col-card">
+          <h3>Imóvel</h3>
+          <ul class="checklist">
+            <li><span class="ck">☐</span>Imóvel exclusivo.</li>
+            <li><span class="ck">☐</span>Acesso exclusivo.</li>
+            <li><span class="ck">☐</span>Zoneamento.</li>
+            <li><span class="ck">☐</span>Alvará.</li>
+            <li><span class="ck">☐</span>CBMERJ.</li>
+            <li><span class="ck">☐</span>Projeto e planta.</li>
+            <li><span class="ck">☐</span>Três salas de aula.</li>
+            <li><span class="ck">☐</span>Administração.</li>
+            <li><span class="ck">☐</span>Sala de instrutores.</li>
+            <li><span class="ck">☐</span>Área de treinamento.</li>
+            <li><span class="ck">☐</span>Banheiros e área de apoio.</li>
+            <li><span class="ck">☐</span>Área de armas e munições.</li>
+            <li><span class="ck">☐</span>CFTV e demais sistemas de segurança.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="two-col" style="margin-top:20px;">
+        <div class="col-card">
+          <h3>Treinamento</h3>
+          <ul class="checklist">
+            <li><span class="ck">☐</span>Instrutores credenciados.</li>
+            <li><span class="ck">☐</span>Grade oficial da Polícia Federal.</li>
+            <li><span class="ck">☐</span>Material didático.</li>
+            <li><span class="ck">☐</span>Equipamentos.</li>
+            <li><span class="ck">☐</span>Projetores.</li>
+            <li><span class="ck">☐</span>Controle acadêmico.</li>
+            <li><span class="ck">☐</span>Sistema de frequência e avaliação.</li>
+          </ul>
+        </div>
+        <div class="col-card">
+          <h3>Tiro</h3>
+          <ul class="checklist">
+            <li><span class="ck">☐</span>Estande próprio; ou</li>
+            <li><span class="ck">☐</span>Convênio com estande, clube ou organização autorizada.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-card" style="margin-top:20px;">
+        <h3>Documentação para a Polícia Federal</h3>
+        <ul class="checklist" style="grid-template-columns:1fr 1fr;">
+          <li><span class="ck">☐</span>Contrato social.</li>
+          <li><span class="ck">☐</span>CNPJ e inscrições.</li>
+          <li><span class="ck">☐</span>Balanço ou balancete.</li>
+          <li><span class="ck">☐</span>Comprovação do capital.</li>
+          <li><span class="ck">☐</span>Comprovação da origem dos recursos.</li>
+          <li><span class="ck">☐</span>Documentos dos sócios e administradores.</li>
+          <li><span class="ck">☐</span>Certidões criminais.</li>
+          <li><span class="ck">☐</span>Fotos ou projeto das instalações.</li>
+          <li><span class="ck">☐</span>Documentação do estande.</li>
+          <li><span class="ck">☐</span>Certificado de Segurança.</li>
+          <li><span class="ck">☐</span>GRUs.</li>
+          <li><span class="ck">☐</span>Acesso ao GESP.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <header class="slide-header">
+      <div class="h-title">Fluxo de autorização</div>
+      <img src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+    </header>
+    <div class="slide-body">
+      <div class="flow">
+        <div class="step">Polícia Federal</div>
+        <span class="arrow">→</span>
+        <div class="step">Vistoria</div>
+        <span class="arrow">→</span>
+        <div class="step">Certificado de Segurança</div>
+        <span class="arrow">→</span>
+        <div class="step">Publicação no DOU</div>
+        <span class="arrow">→</span>
+        <div class="step">Conclusão do projeto: Início das atividades</div>
+      </div>
+      <div class="note">
+        <p>Deferimento PF → vistoria → Certificado de Segurança → deferimento → publicação no Diário Oficial da União → início das atividades.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <header class="slide-header">
+      <div class="h-title">Terreno 1 — Jardim Sulacap</div>
+      <img src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+    </header>
+    <div class="slide-body">
+      <div class="terreno-images">
+        <div class="terreno-img-box">
+          <span class="img-label">Imagem Aérea</span>
+          <img src="https://i.imgur.com/zt56xdg.png" alt="Imagem aérea do Terreno 1">
+        </div>
+        <div class="terreno-img-box">
+          <span class="img-label">Imagem da Frente</span>
+          <img src="https://i.imgur.com/qlBD8RG.png" alt="Imagem da frente do Terreno 1">
+        </div>
+      </div>
+      <div class="terreno-info">
+        <h3>Informações do Terreno</h3>
+        <div class="info-row"><strong>Endereço:</strong> Rua Teodoro Sampaio, 21 - Jardim Sulacap - RJ</div>
+        <div class="info-row"><strong>Área:</strong> 1.322m² (sendo, 36,00m de Frente x 49,00m ambas as laterais x 18,00m fundos).</div>
+        <div class="info-row"><strong>Documentação:</strong> Escritura definitiva com RGI.</div>
+        <div class="info-row"><strong>Valor:</strong> R$ 500.000,00</div>
+        <div class="info-row"><strong>Formas de aquisição:</strong> Aceitando financiamento bancário ou FGTS. Estudam propostas!</div>
+        <div class="info-row"><strong>Observações:</strong> Terreno Plano, Murado, com energia e água</div>
+        <div class="info-row"><strong>Link do anúncio:</strong> <a href="https://www.wimoveis.com.br/propriedades/vende-em-sulacap-r.-teodoro-sampaio-02-lotes-3004223360.html?n_src=Listado&n_pg=3&n_pos=16&n_search_id=91c7acf8-fdf3-4af4-bcb8-ff178e1d2f99" target="_blank">Ver anúncio completo</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <header class="slide-header">
+      <div class="h-title">Terreno 2 — Jardim Sulacap</div>
+      <img src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+    </header>
+    <div class="slide-body">
+      <div class="terreno-images">
+        <div class="terreno-img-box">
+          <span class="img-label">Imagem Aérea</span>
+          <img src="https://i.imgur.com/Ib0nOlU.png" alt="Imagem aérea do Terreno 2">
+        </div>
+        <div class="terreno-img-box">
+          <span class="img-label">Imagem da Frente</span>
+          <img src="https://i.imgur.com/zA8JYKw.png" alt="Imagem da frente do Terreno 2">
+        </div>
+      </div>
+      <div class="terreno-info">
+        <h3>Informações do Terreno</h3>
+        <div class="info-row"><strong>Endereço:</strong> Rua Euzébio de Almeida, 1636 - Jardim Sulacap - RJ</div>
+        <div class="info-row"><strong>Área:</strong> 920m² (sendo, 24,00m de Frente x 40,00m ambas as laterais x 22,00m fundos).</div>
+        <div class="info-row"><strong>Documentação:</strong> Escritura definitiva com RGI.</div>
+        <div class="info-row"><strong>Valor:</strong> R$ 450.000,00</div>
+        <div class="info-row"><strong>Formas de aquisição:</strong> Aceitando financiamento bancário ou FGTS. Estudam propostas!</div>
+        <div class="info-row"><strong>Observações:</strong> Terreno Íngreme, com energia e água</div>
+        <div class="info-row"><strong>Link do anúncio:</strong> <a href="https://www.wimoveis.com.br/propriedades/vende-em-sulacap-terreno-com-920m-2923917786.html" target="_blank">Ver anúncio completo</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <header class="slide-header">
+      <div class="h-title">Terreno 3 — Freguesia, Jacarepaguá</div>
+      <img src="https://i.postimg.cc/bNdZ1FB8/grupo-Impetus-sem-Fundo.png" alt="Grupo Impetus">
+    </header>
+    <div class="slide-body">
+      <div class="terreno-images">
+        <div class="terreno-img-box placeholder">
+          Imagem aérea em breve
+        </div>
+        <div class="terreno-img-box placeholder">
+          Imagem da frente em breve
+        </div>
+      </div>
+      <div class="terreno-info">
+        <h3>Informações do Terreno</h3>
+        <div class="info-row"><strong>Endereço:</strong> Freguesia, Jacarepaguá</div>
+        <div class="info-row"><strong>Área:</strong> 1.000m² (sendo, 10,00m de Frente x 100,00m de profundidade.)</div>
+        <div class="info-row"><strong>Documentação:</strong> Buscando Informações</div>
+        <div class="info-row"><strong>Valor:</strong> R$ 589.000,00</div>
+        <div class="info-row"><strong>Formas de aquisição:</strong> Buscando Informações</div>
+        <div class="info-row"><strong>Observações:</strong> Terreno Íngreme, murado, com energia e água</div>
+        <div class="info-row"><strong>Link do anúncio:</strong> <a href="https://rj.olx.com.br/rio-de-janeiro-e-regiao/terrenos/freguesia-jacarepagua-terreno-1289599951?lis=listing_1100" target="_blank">Ver anúncio completo</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="watermark"></div>
+    <div class="final">
+      <div class="big">Checklist de planejamento — <span>Escola de Formação de Vigilantes/RJ</span></div>
+      <p class="sub">Documento de trabalho sujeito à conferência e atualização normativa.</p>
+    </div>
+  </section>
+
+</div>
+
+<nav class="controls">
+  <button id="prev" type="button">← Anterior</button>
+  <div class="counter"><b id="cur">1</b> / <span id="total">23</span></div>
+  <button id="next" type="button">Próximo →</button>
+</nav>
+
+<script>
+  (function(){
+    var slides = document.querySelectorAll('.slide');
+    var total = slides.length;
+    var i = 0;
+
+    document.getElementById('total').textContent = total;
+    var curEl = document.getElementById('cur');
+    var progress = document.getElementById('progress');
+
+    function show(n){
+      slides[i].classList.remove('active');
+      i = (n + total) % total;
+      slides[i].classList.add('active');
+      curEl.textContent = i + 1;
+      progress.style.width = ((i + 1) / total * 100) + '%';
+
+      var scrollable = slides[i].querySelector('.slide-body, .cover, .final');
+      if (scrollable && scrollable.scrollTo){
+        scrollable.scrollTo(0,0);
+      }
+    }
+
+    function nextSlide(){ show(i + 1); }
+    function prevSlide(){ show(i - 1); }
+
+    document.getElementById('next').onclick = nextSlide;
+    document.getElementById('prev').onclick = prevSlide;
+
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'ArrowRight' || e.key === 'PageDown') nextSlide();
+      if(e.key === 'ArrowLeft' || e.key === 'PageUp') prevSlide();
+      if(e.key === 'Home') show(0);
+      if(e.key === 'End') show(total - 1);
+    });
+
+    show(0);
+  })();
+</script>
+</body>
+</html>
